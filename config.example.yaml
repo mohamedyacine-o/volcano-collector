@@ -1,0 +1,64 @@
+# =============================================================================
+# Volcano Artifact Collector – Configuration File
+# =============================================================================
+# Copy this file to config.yaml and customise as needed.
+# Values here are overridden by environment variables and CLI arguments.
+# =============================================================================
+
+# Database connection
+database:
+  host: localhost
+  port: 5432
+  name: volcano
+  user: logstash_ro
+  password: changeme
+  # SSL mode: disable, allow, prefer, require, verify-ca, verify-full
+  sslmode: prefer
+
+# Output settings
+output:
+  directory: /tmp/volcano_artifacts
+  prefixes:
+    service: volcano_artifacts       # Mode 1 – continuous
+    one_shot: volcano_one_shot       # Mode 2 – one-shot
+    http: volcano_http               # Mode 3 – listener
+
+# File rotation
+rotation:
+  max_file_size_mb: 100              # 0 = disabled
+  daily: true                        # Rotate at midnight UTC
+
+# Scheduler (Mode 1)
+scheduler:
+  poll_interval_seconds: 300         # 0 = run once and exit
+
+# HTTP listener (Mode 3)
+http_server:
+  host: "0.0.0.0"
+  port: 8080
+
+# Retry policy for DB connections
+retry:
+  max_attempts: 5
+  base_delay_seconds: 1              # Exponential back-off base
+
+# Logging
+logging:
+  level: INFO                        # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  file: ""                           # Leave empty for stdout only
+
+# Batch / performance tuning
+performance:
+  db_fetch_size: 1000                # Rows per server-side cursor fetch
+  flush_interval: 1000               # Flush output file every N lines
+
+# Security (Optional)
+security:
+  api_key: ""                        # Shared API key for Mode 3 (empty = disabled)
+
+# Queue mode (Mode 4 – Analysis-Centric Queue)
+queue:
+  schema: "investigations"           # Schema containing analyses table
+  table: "analyses"                  # Table containing analyses
+  status_filter: "completed"         # Filter status ('completed' or '' for all)
+  throttle_seconds: 1.0              # Delay between analyses to protect Logstash heap
